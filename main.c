@@ -11,6 +11,12 @@ struct data {
 	time_t timestamp;
 };
 
+int compare_data(const void *a, const void *b) {
+	struct data *A = (struct data*)a;
+	struct data *B = (struct data*)b;
+	return (A->timestamp - B->timestamp);
+}
+
 int main(int argc, char** argv) {
 	if (argc != 2) {
 		printf("Usage: %s <data file>\n", argv[0]);
@@ -36,5 +42,13 @@ int main(int argc, char** argv) {
 	}
 	printf("%d rows read\n", row_number); 
 	fclose(data_file);
+	struct data a, b;
+	a.measurement = 0.123;	
+	a.timestamp = 345;
+	b.measurement = 0;
+	b.timestamp = 567;
+	printf("now sorting...");
+	qsort(data_arr, row_number, sizeof(struct data), compare_data);
+	printf("sorted\n");
 	return 0;
 }
