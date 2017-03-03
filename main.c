@@ -3,33 +3,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/time.h>
+#include "type.h"
+#include "sort.h"
 
 #define FILE_SEPARATOR ","
 #define NEWLINE "\n"
 
-struct data {
-	double measurement;
-	time_t timestamp;
-};
-
-struct execution_data {
-	struct timeval begin;
-	struct timeval end;
-};
-
-int compare_data(const void *a, const void *b) {
-	struct data *A = (struct data*)a;
-	struct data *B = (struct data*)b;
-	return (A->timestamp - B->timestamp);
-}
-
-void start_timer(struct execution_data *ed) {
-	gettimeofday(&ed->begin, NULL);
-}
-
-void stop_timer(struct execution_data *ed) {
-	gettimeofday(&ed->end, NULL);
-}
 
 int main(int argc, char** argv) {
 	if (argc != 2) {
@@ -40,7 +19,7 @@ int main(int argc, char** argv) {
 	int row_number = 0;
 	char *row;
 	FILE *data_file;
-	struct execution_data qsort_ed;
+	int qsort_begin, qsort_end, bsort_begin, bsort_end;
 	if(!(data_file = fopen(argv[1], "r"))) {
 		printf("Error reading from %s, exiting...\n", argv[1]);
 		return 0;
@@ -53,13 +32,16 @@ int main(int argc, char** argv) {
 		row_number++;
 	}
 	printf("%d rows read\n", row_number);
-	start_timer(&qsort_ed);
+	qsort_begin = clock();
 	qsort(data_arr, row_number, sizeof(struct data), compare_data);
-	stop_timer(&qsort_ed);
-	time_t seconds = qsort_ed.end.tv_sec - qsort_ed.begin.tv_sec;
-	suseconds_t usec = qsort_ed.end.tv_usec - qsort_ed.begin.tv_usec;
-	printf("%ld sec %d usec\n", seconds, usec);
-	printf("sorted\n");
+	qsort_end = clock();
+	printf("--- stdlib qsort ---\n");
+	printf("%2f msec elapsed\n", ((double)qsort_end - (double)qsort_begin)/(CLOCKS_PER_SEC/1000));
+	bsort_begin = clock();
+	bubblesort(data_arr, row_number, compare_data); /*WARNING!! data_arr is already sorted here, perhaps you'll want to read it again */
+	bsort_end = clock();
+	printf("--- bubblesort ---\n");
+	printf("%2f msec elapsed\n", ((double)bsort_end - (double)bsort_begin)/(CLOCKS_PER_SEC/1000));
 	free(data_arr);
 	fclose(data_file);
 	return 0;
