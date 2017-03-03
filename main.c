@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 	int qsort_begin, qsort_end, bsort_begin, bsort_end;
 	if(!(data_file = fopen(argv[1], "r"))) {
 		printf("Error reading from %s, exiting...\n", argv[1]);
-		return 0;
+		return -1;
 	}
 	row = (char*)malloc(sizeof(char)*255);
 	while(fgets(row, 255, data_file)) {
