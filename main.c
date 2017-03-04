@@ -8,6 +8,7 @@
 
 #define FILE_SEPARATOR ","
 #define NEWLINE "\n"
+#define LENGTH 255
 
 
 int main(int argc, char** argv) {
@@ -24,23 +25,23 @@ int main(int argc, char** argv) {
 		printf("Error reading from %s, exiting...\n", argv[1]);
 		return -1;
 	}
-	row = (char*)malloc(sizeof(char)*255);
-	while(fgets(row, 255, data_file)) {
-		data_arr = realloc(data_arr, (sizeof(struct data) * (row_number+1)));
+	row = (char*)malloc(sizeof(char)*LENGTH);
+	data_arr = malloc(sizeof(struct data)*num_lines(argv[1]));
+	while(fgets(row, LENGTH, data_file)) {
 		data_arr[row_number].measurement = atof(strtok(row, FILE_SEPARATOR));
 		data_arr[row_number].timestamp = atoi(strtok(NULL, NEWLINE));
 		row_number++;
 	}
 	printf("%d rows read\n", row_number);
+	printf("--- stdlib qsort ---\n");
 	qsort_begin = clock();
 	qsort(data_arr, row_number, sizeof(struct data), compare_data);
 	qsort_end = clock();
-	printf("--- stdlib qsort ---\n");
 	printf("%2f msec elapsed\n", ((double)qsort_end - (double)qsort_begin)/(CLOCKS_PER_SEC/1000));
+	printf("--- bubblesort ---\n");
 	bsort_begin = clock();
 	bubblesort(data_arr, row_number, compare_data); /*WARNING!! data_arr is already sorted here, perhaps you'll want to read it again */
 	bsort_end = clock();
-	printf("--- bubblesort ---\n");
 	printf("%2f msec elapsed\n", ((double)bsort_end - (double)bsort_begin)/(CLOCKS_PER_SEC/1000));
 	free(data_arr);
 	fclose(data_file);

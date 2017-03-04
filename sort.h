@@ -31,3 +31,17 @@ void bubblesort(const void *data, unsigned int length, int(*cmp)(const void*, co
 			break;
 	}
 }
+
+int num_lines(char* filename) {
+	FILE *f;
+	char row[255];
+	int n = 0;
+	f = fopen(filename, "r");
+	if (!f) 
+		return -1;
+	while(fgets(row, 255, f)) {
+		n++;
+	}
+	fclose(f);
+	return n;
+}
